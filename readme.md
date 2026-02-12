@@ -20,7 +20,7 @@
 
 ## 反馈与支持
 
-本人首次开发模组，如遇到任何问题欢迎提交 [Issues](https://github.com/你的用户名/easy-command-mod/issues)：
+- 本人首次开发模组，如遇到任何问题欢迎提交 [Issues](https://github.com/你的用户名/easy-command-mod/issues)：
 ---
 
 ## 许可证
