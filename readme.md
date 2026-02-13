@@ -23,6 +23,11 @@
 - 本人首次开发模组，如遇到任何问题欢迎提交 [Issues](https://github.com/你的用户名/easy-command-mod/issues)：
 ---
 
+## 更新日志
+
+- v1.0.0 首次发布
+- v1.0.1 调整界面显示，细化游戏规则相关命令
+
 ## 许可证
 
 本项目采用 **MIT 许可证** - 详情见 [LICENSE](LICENSE) 文件。
