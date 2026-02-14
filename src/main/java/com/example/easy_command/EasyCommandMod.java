@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.example.easy_command;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -8,7 +8,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file

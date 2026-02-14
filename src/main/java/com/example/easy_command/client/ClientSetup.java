@@ -1,6 +1,6 @@
-package com.example.examplemod.client;
+package com.example.easy_command.client;
 
-import com.example.examplemod.EasyCommandMod;
+import com.example.easy_command.EasyCommandMod;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;

@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.example.easy_command;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 public class CommandScreen extends Screen {
     // ROWS = 0, 1, 2, 3  以界面大小=4计算
@@ -46,7 +47,7 @@ public class CommandScreen extends Screen {
 
     private void mainScreen() {
         this.clearWidgets();
-        addDoubleWidthString("简易指令 v1.0.0", -1, 0);
+        addDoubleWidthString("简易指令 v1.1.0", -1, 0);
         addButton("常用命令", 2, 0, this::commonScreen);
         addButton("游戏规则", 3, 0, this::gameruleScreen);
         addButton("自定义命令", 2, 1, this::customScreen);
@@ -76,6 +77,11 @@ public class CommandScreen extends Screen {
         addButton("雨天", 3, 1, () -> sendCommandAndCloseUI("weather rain"));
         addButton("白天", 3, 2, () -> sendCommandAndCloseUI("time set day"));
         addButton("夜晚", 3, 3, () -> sendCommandAndCloseUI("time set night"));
+
+        addButton("清除效果", 4, 0, () -> sendCommandAndCloseUI("effect clear"));
+        addButton("夜视", 4, 1, () -> sendCommandAndCloseUI("effect give @s minecraft:night_vision infinite"));
+        addButton("抗性提升II", 4, 2, () -> sendCommandAndCloseUI("effect give @s minecraft:resistance 1800 1"));
+        addButton("抗性提升V", 4, 3, () -> sendCommandAndCloseUI("effect give @s minecraft:resistance 1800 4"));
     }
 
     private void gameruleScreen() {
@@ -137,6 +143,7 @@ public class CommandScreen extends Screen {
             addButton("返回", 0, 1, this::aboutScreen);
             addDoubleWidthString("v1.0.0: 第一个版本", 3, 0);
             addDoubleWidthString("v1.0.1: 调整界面显示，细化游戏规则相关命令", 4, 0);
+            addDoubleWidthString("v1.1.0: 完成自定义指令编辑功能, 添加更多常用指令", 5, 0);
         });
 
     }
@@ -150,13 +157,23 @@ public class CommandScreen extends Screen {
     }
 
     private void addCustomScreen() {
+        editCustomCommand(UUID.randomUUID(), "", "", "", "", false);
+    }
+
+    private void editCustomCommand(UUID default_uuid, String default_name, String default_row, String default_column, String default_command, Boolean editor) {
         initNewScreen("添加命令");
 
-        addString("名称: ", 1, -1);
-        EditBox nameEdit = addEdit("名称", 1, 1);
+        addString("UUID (无需更改): ", 1, -1);
+        EditBox uuidEdit = addEdit("uuid", 1, 1);
+        uuidEdit.setMaxLength(36);
+        uuidEdit.setValue(default_uuid.toString());
 
-        addString("位置(行 0-8)：", 2, -1);
-        EditBox place_row = addEdit("位置(行)", 2, 1);
+        addString("名称: ", 2, -1);
+        EditBox nameEdit = addEdit("名称", 2, 1);
+        nameEdit.setValue(default_name);
+
+        addString("位置(行 0-8)：", 3, -1);
+        EditBox place_row = addEdit("位置(行)", 3, 1);
         place_row.setFilter(text -> {
             if (text.isEmpty()) return true;
             if (text.matches("\\d+")) {
@@ -165,9 +182,10 @@ public class CommandScreen extends Screen {
             }
             return false;
         });
+        place_row.setValue(default_row);
 
-        addString("位置(列 0-3)：", 3, -1);
-        EditBox place_column = addEdit("位置(列)", 3, 1);
+        addString("位置(列 0-3)：", 4, -1);
+        EditBox place_column = addEdit("位置(列)", 4, 1);
         place_column.setFilter(text -> {
             if (text.isEmpty()) return true;
             if (text.matches("\\d+")) {
@@ -176,13 +194,27 @@ public class CommandScreen extends Screen {
             }
             return false;
         });
+        place_column.setValue(default_column);
 
-        addString("命令(无须加'/')：", 4, -1);
-        EditBox commandEdit = addEdit("命令", 4, 1);
+        addString("命令(无须加'/')：", 5, -1);
+        EditBox commandEdit = addEdit("命令", 5, 1);
+        commandEdit.setMaxLength(256);
+        commandEdit.setValue(default_command);
 
-        addButton("确认", 5, 0, () -> {
+        addButton("确认", 6, 0, () -> {
+            UUID uuid;
             String name, command;
             int row, column;
+            if (uuidEdit.getValue().isEmpty()) {
+                uuid = UUID.randomUUID();
+            } else {
+                try {
+                    uuid = UUID.fromString(uuidEdit.getValue());
+                } catch (IllegalArgumentException e) {
+                    addDoubleWidthString("uuid格式错误，请检查格式或将uuid留空", 8, 0);
+                    return;
+                }
+            }
             if (nameEdit.getValue().isEmpty()) {
                 name = "Untitled";
             } else {
@@ -206,33 +238,40 @@ public class CommandScreen extends Screen {
             }
             command = commandEdit.getValue();
 
-            Config.addCommand(new CustomCommand(name, command, row, column));
+            Config.addCommand(new CustomCommand(uuid, name, command, row, column));
             settingCustomScreen();
         });
 
-        addButton("取消", 5, 2, this::settingCustomScreen);
+        if (editor) addButton("取消", 6, 1, this::editCustomScreen);
+        else addButton("取消", 6, 1, this::settingCustomScreen);
     }
 
     private void editCustomScreen() {
         initNewScreen("自定义命令-编辑");
-        addButton("自定义命令", 0, 1, this::customScreen);
-
-        addDoubleWidthString("编辑功能暂未完成，目前仅支持删除命令", -2, 0);
+        addButton("自定义命令-设置", 0, 1, this::settingCustomScreen);
 
         List<CustomCommand> cmds = Config.getCommands();
         for (int i = 0; i < cmds.size(); i++) {
             CustomCommand cmd = cmds.get(i);
             addButton(cmd.name, cmd.row, cmd.column, () -> {
-                this.clearWidgets();
-                addDoubleWidthString("将要删除" + cmd.name + "?", 0, 0);
-                addDoubleWidthString("删除后不可恢复！", 1, 0);
-                addButton("确认", 2, 0, () -> {
-                    Config.removeCommand(cmd.name);
-                    editCustomScreen();
-                });
-                addButton("取消", 2, 3, this::editCustomScreen);
+                editScreen(cmd.uuid, cmd.name, cmd.row + "", cmd.column + "", cmd.command);
             });
         }
+    }
+
+    private void editScreen(UUID uuid, String name, String row, String column, String command) {
+        editCustomCommand(uuid, name, row + "", column + "", command, true);
+        addButton("还原", 6, 2, () -> editScreen(uuid, name, row + "", column + "", command));
+        addButton("删除", 6, 3, () -> {
+            initNewScreen("删除 " + name);
+            addButton("返回", 0, 1, () -> editScreen(uuid, name, row + "", column + "", command));
+            addDoubleWidthString("确认要删除" + name + "吗?", 1, 0);
+            addButton("是", 3, 0, () -> {
+                Config.removeCommand(uuid);
+                editCustomScreen();
+            });
+            addButton("否", 3, 2, () -> editScreen(uuid, name, row + "", column + "", command));
+        });
     }
 
     private int getRowY(int row) {

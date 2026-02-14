@@ -1,6 +1,6 @@
-package com.example.examplemod.client;
+package com.example.easy_command.client;
 
-import com.example.examplemod.CommandScreen;
+import com.example.easy_command.CommandScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;

@@ -1,7 +1,6 @@
-package com.example.examplemod;
+package com.example.easy_command;
 
 
-import com.google.common.graph.Network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
